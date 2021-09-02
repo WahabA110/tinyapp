@@ -9,7 +9,7 @@ app.set('view engine', 'ejs');
 
 function generateRandomString() {
 	return Math.random().toString(36).substr(2, 6);
-}
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -26,9 +26,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const shortString = generateRandomString()
-  urlDatabase[shortString] = req.body.longURL
-  console.log(urlDatabase)
+  const shortString = generateRandomString();
+  urlDatabase[shortString] = req.body.longURL;
   res.redirect(`/urls/${shortString}`);
 });
 
