@@ -78,6 +78,14 @@ app.post("/register", (req, res) => {
   res.status(403).send('Email already in use');
 });
 
+app.get("/login", (req, res) => {
+  const currentUser = req.cookies['user_id'];
+  const templateVars = {
+    user: users[currentUser] || null,
+  };
+  res.render("urls_login", templateVars);
+});
+
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
