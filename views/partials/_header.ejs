@@ -10,16 +10,13 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <!-- Username will be changed too, locals.user_id-->
     <% if (user) { %>
       <p>Logged in as: <%= user.email %></p>
       <form method="POST" action="/logout"><button type="submit">logout</button></form>
       <% } else {%>
-    <form class="form-inline" action="/login" method="POST">
+    <form class="form-inline" action="/login" method="GET">
       <div class="form-group mb-2">
-        <label for="username">username:</label>
-        <input class="form-control" type="text" name="username" placeholder="Enter your userID here" style="width: 300px; margin: 1em">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Register</button>
       </div>
     </form>
     <% } %>
