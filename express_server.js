@@ -12,22 +12,22 @@ app.set('view engine', 'ejs');
 
 function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
-};
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
@@ -49,8 +49,8 @@ app.get("/register", (req, res) => {
   const currentUser = req.cookies['user_id'];
   const templateVars = {
     user: users[currentUser] || null,
-  }
-  res.render("urls_register", templateVars)
+  };
+  res.render("urls_register", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -88,7 +88,7 @@ app.get("/urls/new", (req, res) => {
   const currentUser = req.cookies['user_id'];
   const templateVars = {
     user: users[currentUser] || null
-  }
+  };
   res.render("urls_new", templateVars);
 });
 
