@@ -51,6 +51,16 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars)
 });
 
+app.post("/register", (req, res) => {
+  const shortString = generateRandomString();
+  users[shortString] = {
+    id: shortString,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie('user_id', shortString)
+  res.redirect("/urls");
+});
 
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
