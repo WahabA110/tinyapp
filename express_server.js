@@ -14,6 +14,15 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
+function checkEmail(email) {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -54,14 +63,19 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const shortString = generateRandomString();
-  users[shortString] = {
-    id: shortString,
-    email: req.body.email,
-    password: req.body.password
-  };
-  res.cookie('user_id', shortString);
-  res.redirect("/urls");
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send('Bad Request');
+  } if (!checkEmail(req.body.email)) {
+    const shortString = generateRandomString();
+    users[shortString] = {
+      id: shortString,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', shortString);
+    res.redirect("/urls");
+  }
+  res.status(403).send('Email already in use');
 });
 
 app.post("/login", (req, res) => {
