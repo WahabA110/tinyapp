@@ -14,9 +14,14 @@
       <p>Logged in as: <%= user.email %></p>
       <form method="POST" action="/logout"><button type="submit">logout</button></form>
       <% } else {%>
+    <form class="form-inline" action="/register" method="GET">
+      <div class="form-group mb-2">
+        <button type="submit" class="btn btn-primary">register</button>
+      </div>
+    </form>
     <form class="form-inline" action="/login" method="GET">
       <div class="form-group mb-2">
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary">login</button>
       </div>
     </form>
     <% } %>
