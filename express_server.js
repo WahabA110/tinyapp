@@ -24,8 +24,14 @@ function checkEmail(email) {
 }
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b6UTxQ": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW"
+  },
+  "i3BoGr": {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW"
+  }
 };
 
 const users = {
@@ -87,7 +93,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if(!checkEmail(req.body.email)) {
+  if (!checkEmail(req.body.email)) {
     res.status(403).send('email cannot be found');
   } else if (checkEmail(req.body.email)) {
     if (req.body.password !== users[checkEmail(req.body.email)].password) {
@@ -101,7 +107,10 @@ app.post("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const shortString = generateRandomString();
-  urlDatabase[shortString] = req.body.longURL;
+  urlDatabase[shortString] = {
+    longURL: req.body.longURL,
+    userID: req.cookies['user_id']
+  };
   res.redirect(`/urls/${shortString}`);
 });
 
@@ -116,6 +125,10 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const currentUser = req.cookies['user_id'];
+  if (!currentUser) {
+    res.redirect("/urls");
+    return;
+  }
   const templateVars = {
     user: users[currentUser] || null
   };
@@ -127,18 +140,18 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     user: users[currentUser] || null,
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.newURL;
+  urlDatabase[req.params.shortURL].longURL = req.body.newURL;
   res.redirect("/urls");
 });
 
