@@ -87,8 +87,16 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect("/urls");
+  if(!checkEmail(req.body.email)) {
+    res.status(403).send('email cannot be found');
+  } else if (checkEmail(req.body.email)) {
+    if (req.body.password !== users[checkEmail(req.body.email)].password) {
+      res.status(403).send('password does not match');
+    } else if (req.body.password === users[checkEmail(req.body.email)].password) {
+      res.cookie('user_id', users[checkEmail(req.body.email)].id);
+      res.redirect("/urls");
+    }
+  }
 });
 
 app.post("/urls", (req, res) => {
