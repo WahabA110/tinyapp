@@ -176,12 +176,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
+  ownerCheck(req, res);
   urlDatabase[req.params.shortURL].longURL = req.body.newURL;
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  ownerCheck(req, res)
+  ownerCheck(req, res);
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
