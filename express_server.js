@@ -23,6 +23,27 @@ function checkEmail(email) {
   return null;
 }
 
+const urlsForUser = function (id) {
+	let obj = {};
+	for (let key in urlDatabase) {
+		let url = urlDatabase[key]
+		if (url.userID === id) {
+			obj[key] = url
+		}
+	}
+	return obj;
+}
+
+const ownerCheck = function (req, res) {
+  const currentUser = req.cookies['user_id'];
+  if (!currentUser) {
+    res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
+  }
+  if (urlDatabase[req.params.shortURL].userID !== currentUser) {
+    res.send("URL does not match your account. Head back to <a href= '/urls'>urls</a>")
+  }
+}
+
 const urlDatabase = {
   "b6UTxQ": {
     longURL: "http://www.lighthouselabs.ca",
@@ -53,9 +74,12 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const currentUser = req.cookies['user_id'];
+  if (!currentUser) {
+    res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
+  }
   const templateVars = {
     user: users[currentUser] || null,
-    urls: urlDatabase
+    urls: urlsForUser(req.cookies['user_id'])
   };
   res.render("urls_index", templateVars);
 });
@@ -137,6 +161,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const currentUser = req.cookies['user_id'];
+  ownerCheck(req, res);
   const templateVars = {
     user: users[currentUser] || null,
     shortURL: req.params.shortURL,
@@ -156,6 +181,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  ownerCheck(req, res)
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
