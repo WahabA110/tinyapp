@@ -104,7 +104,7 @@ app.post("/register", (req, res) => {
   users[shortString] = {
     id: shortString,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   };
   res.cookie('user_id', shortString);
   res.redirect("/urls");
@@ -122,9 +122,9 @@ app.post("/login", (req, res) => {
   if (!checkEmail(req.body.email)) {
     res.status(403).send('email cannot be found');
   } else if (checkEmail(req.body.email)) {
-    if (req.body.password !== users[checkEmail(req.body.email)].password) {
+    if (!bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email)].password)) {
       res.status(403).send('password does not match');
-    } else if (req.body.password === users[checkEmail(req.body.email)].password) {
+    } else if (bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email)].password)) {
       res.cookie('user_id', users[checkEmail(req.body.email)].id);
       res.redirect("/urls");
     }
