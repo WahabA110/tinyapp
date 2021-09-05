@@ -25,14 +25,14 @@ function checkEmail(email) {
 }
 
 const urlsForUser = function (id) {
-	let obj = {};
-	for (let key in urlDatabase) {
-		let url = urlDatabase[key]
-		if (url.userID === id) {
-			obj[key] = url
-		}
-	}
-	return obj;
+  let obj = {};
+  for (let key in urlDatabase) {
+    let url = urlDatabase[key]
+    if (url.userID === id) {
+      obj[key] = url
+    }
+  }
+  return obj;
 }
 
 const ownerCheck = function (req, res) {
@@ -99,15 +99,16 @@ app.post("/register", (req, res) => {
     res.status(400).send('Bad Request');
   } else if (checkEmail(req.body.email)) {
     res.status(403).send('Email already in use');
+  } else {
+    const shortString = generateRandomString();
+    users[shortString] = {
+      id: shortString,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 10)
+    };
+    res.cookie('user_id', shortString);
+    res.redirect("/urls");
   }
-  const shortString = generateRandomString();
-  users[shortString] = {
-    id: shortString,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
-  };
-  res.cookie('user_id', shortString);
-  res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
