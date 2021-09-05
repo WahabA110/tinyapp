@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -76,12 +77,13 @@ app.get("/urls", (req, res) => {
   const currentUser = req.cookies['user_id'];
   if (!currentUser) {
     res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
+  } else {
+    const templateVars = {
+      user: users[currentUser] || null,
+      urls: urlsForUser(req.cookies['user_id'])
+    };
+    res.render("urls_index", templateVars);
   }
-  const templateVars = {
-    user: users[currentUser] || null,
-    urls: urlsForUser(req.cookies['user_id'])
-  };
-  res.render("urls_index", templateVars);
 });
 
 app.get("/register", (req, res) => {
@@ -95,17 +97,17 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send('Bad Request');
-  } if (!checkEmail(req.body.email)) {
-    const shortString = generateRandomString();
-    users[shortString] = {
-      id: shortString,
-      email: req.body.email,
-      password: req.body.password
-    };
-    res.cookie('user_id', shortString);
-    res.redirect("/urls");
+  } else if (checkEmail(req.body.email)) {
+    res.status(403).send('Email already in use');
   }
-  res.status(403).send('Email already in use');
+  const shortString = generateRandomString();
+  users[shortString] = {
+    id: shortString,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie('user_id', shortString);
+  res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
