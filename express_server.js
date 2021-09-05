@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
-const checkEmail = require('./helpers');
+const { checkEmail } = require('./helpers');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,15 +21,6 @@ app.use(cookieSession({
 function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
-
-// function checkEmail(email, database) {
-//   for (let user in database) {
-//     if (database[user].email === email) {
-//       return user;
-//     }
-//   }
-//   return null;
-// }
 
 const urlsForUser = function (id) {
   let obj = {};
@@ -77,7 +68,7 @@ const users = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
