@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
+const checkEmail = require('./helpers');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,14 +22,14 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
-function checkEmail(email) {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return user;
-    }
-  }
-  return null;
-}
+// function checkEmail(email, database) {
+//   for (let user in database) {
+//     if (database[user].email === email) {
+//       return user;
+//     }
+//   }
+//   return null;
+// }
 
 const urlsForUser = function (id) {
   let obj = {};
@@ -103,7 +104,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send('Bad Request');
-  } else if (checkEmail(req.body.email)) {
+  } else if (checkEmail(req.body.email, users)) {
     res.status(403).send('Email already in use');
   } else {
     const shortString = generateRandomString();
@@ -126,13 +127,13 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if (!checkEmail(req.body.email)) {
+  if (!checkEmail(req.body.email, users)) {
     res.status(403).send('email cannot be found');
-  } else if (checkEmail(req.body.email)) {
-    if (!bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email)].password)) {
+  } else if (checkEmail(req.body.email, users)) {
+    if (!bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email, users)].password)) {
       res.status(403).send('password does not match');
-    } else if (bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email)].password)) {
-      req.session.user_id = users[checkEmail(req.body.email)].id;
+    } else if (bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email, users)].password)) {
+      req.session.user_id = users[checkEmail(req.body.email, users)].id;
       res.redirect("/urls");
     }
   }
