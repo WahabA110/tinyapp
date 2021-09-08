@@ -94,7 +94,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send('Bad Request');
+    res.status(400).send('Email and/or password is empty. Please retry again.');
   } else if (checkEmail(req.body.email, users)) {
     res.status(403).send('Email already in use');
   } else {
@@ -151,7 +151,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const currentUser = req.session.user_id;
   if (!currentUser) {
-    res.redirect("/urls");
+    res.redirect("/login");
     return;
   }
   const templateVars = {
