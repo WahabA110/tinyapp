@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
-const { checkEmail } = require('./helpers');
+const { getUserByEmail, generateRandomString, urlsForUser, ownerCheck } = require('./helpers');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -17,31 +17,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ['longKey']
 }));
-
-const generateRandomString = function() {
-  return Math.random().toString(36).substr(2, 6);
-};
-
-const urlsForUser = function(id) {
-  let obj = {};
-  for (let key in urlDatabase) {
-    let url = urlDatabase[key];
-    if (url.userID === id) {
-      obj[key] = url;
-    }
-  }
-  return obj;
-};
-
-const ownerCheck = function(req, res) {
-  const currentUser = req.session.user_id;
-  if (!currentUser) {
-    res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
-  }
-  if (urlDatabase[req.params.shortURL].userID !== currentUser) {
-    res.send("URL does not match your account. Head back to <a href= '/urls'>urls</a>");
-  }
-};
 
 const urlDatabase = {
   "b6UTxQ": {
@@ -95,7 +70,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send('Email and/or password is empty. Please retry again.');
-  } else if (checkEmail(req.body.email, users)) {
+  } else if (getUserByEmail(req.body.email, users)) {
     res.status(403).send('Email already in use');
   } else {
     const shortString = generateRandomString();
@@ -118,7 +93,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  let currentClient = checkEmail(req.body.email, users);
+  let currentClient = getUserByEmail(req.body.email, users);
   if (currentClient) {
     if (bcrypt.compareSync(req.body.password, users[currentClient].password)) {
       req.session.user_id = users[currentClient].id;
