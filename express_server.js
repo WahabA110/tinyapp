@@ -118,16 +118,15 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if (!checkEmail(req.body.email, users)) {
-    res.status(403).send('email cannot be found');
-  } else if (checkEmail(req.body.email, users)) {
-    if (!bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email, users)].password)) {
-      res.status(403).send('password does not match');
-    } else if (bcrypt.compareSync(req.body.password, users[checkEmail(req.body.email, users)].password)) {
-      req.session.user_id = users[checkEmail(req.body.email, users)].id;
+  let currentClient = checkEmail(req.body.email, users);
+  if (currentClient) {
+    if (bcrypt.compareSync(req.body.password, users[currentClient].password)) {
+      req.session.user_id = users[currentClient].id;
       res.redirect("/urls");
     }
+    res.status(403).send('password does not match');
   }
+  res.status(403).send('email cannot be found');
 });
 
 app.post("/urls", (req, res) => {
