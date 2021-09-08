@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
-const { getUserByEmail, generateRandomString, urlsForUser, ownerCheck } = require('./helpers');
+const { getUserByEmail, generateRandomString } = require('./helpers');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -17,6 +17,27 @@ app.use(cookieSession({
   name: 'session',
   keys: ['longKey']
 }));
+
+const ownerCheck = function(req, res) {
+  const currentUser = req.session.user_id;
+  if (!currentUser) {
+    res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
+  }
+  if (urlDatabase[req.params.shortURL].userID !== currentUser) {
+    res.send("URL does not match your account. Head back to <a href= '/urls'>urls</a>");
+  }
+};
+
+const urlsForUser = function(id) {
+  let obj = {};
+  for (let key in urlDatabase) {
+    let url = urlDatabase[key];
+    if (url.userID === id) {
+      obj[key] = url;
+    }
+  }
+  return obj;
+};
 
 const urlDatabase = {
   "b6UTxQ": {
@@ -101,8 +122,10 @@ app.post("/login", (req, res) => {
     if (bcrypt.compareSync(req.body.password, users[currentClient].password)) {
       req.session.user_id = users[currentClient].id;
       res.redirect("/urls");
+      return;
     }
     res.status(403).send('password does not match');
+    return;
   }
   res.status(403).send('email cannot be found');
 });
