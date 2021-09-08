@@ -50,6 +50,7 @@ app.get("/urls", (req, res) => {
   const currentUser = req.session.user_id;
   if (!currentUser) {
     res.send("Please <a href= '/login'>log in</a> or <a href= '/register'>register</a> first");
+    return;
   } else {
     const templateVars = {
       user: users[currentUser] || null,
@@ -70,8 +71,10 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send('Email and/or password is empty. Please retry again.');
+    return;
   } else if (getUserByEmail(req.body.email, users)) {
     res.status(403).send('Email already in use');
+    return;
   } else {
     const shortString = generateRandomString();
     users[shortString] = {
